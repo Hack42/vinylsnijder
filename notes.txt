@@ -1,0 +1,92 @@
+Wat notes van mij (denz)
+
+1. Big endian (duh)
+2. De eerste 0x400 bytes zijn de vector tabel. zie https://wiki.neogeodev.org/index.php?title=68k_vector_table
+
+Begin van de rom image (alles samengevoegd)
+00000000  00 30 3f fe 00 00 04 00  00 01 84 e4 00 01 88 3c  |.0?............<|
+          -----------                 initial stack pointer 0x00303ffe
+                      -----------     reset/poweron vector  0x00000400
+
+
+Dit is dus een stuk code dat als eerste wordt uitgevoerd:
+00000400  41 f9 00 30 00 00 20 3c  00 00 7f ff 30 fc aa 55  |A..0.. <....0..U|
+00000410  51 c8 ff fa 41 f9 00 30  00 00 20 3c 00 00 7f ff  |Q...A..0.. <....|
+00000420  0c 58 aa 55 66 04 51 c8  ff f8 48 c0 52 80 e3 80  |.X.Uf.Q...H.R...|
+00000430  44 80 06 80 00 01 00 00  23 c0 00 30 d9 14 4f f9  |D.......#..0..O.|
+00000440  00 30 3f fe 4b f9 00 31  58 00 4e b9 00 00 04 66  |.0?.K..1X.N....f|
+00000450  42 a7 42 a7 42 a7 4e b9  00 01 80 00 4f ef 00 0c  |B.B.B.N.....O...|
+00000460  2f 00 4e fa ff fe 20 3c  00 00 03 cc 55 80 6f 00  |/.N... <....U.o.|
+00000470  00 60 20 7c 00 00 05 00  0c 10 00 53 66 52 52 88  |.` |.......SfRR.|
+00000480  60 00 00 48 10 10 04 00  00 43 66 00 00 44 52 88  |`..H.....Cf..DR.|
+00000490  70 00 10 10 e1 88 10 28  00 01 e1 88 10 28 00 02  |p......(.....(..|
+000004a0  e1 88 10 28 00 03 53 80  58 88 72 00 12 10 e1 89  |...(..S.X.r.....|
+000004b0  12 28 00 01 e1 89 12 28  00 02 e1 89 12 28 00 03  |.(.....(.....(..|
+000004c0  58 88 22 41 12 d8 51 c8  ff fc 0c 10 00 45 66 b4  |X."A..Q......Ef.|
+000004d0  4e 75 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |Nu..............|
+000004e0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+
+gedisassembleerd:
+
+                           .data:00000400 41 f9 00 30 00 00                lea 0x00300000,%a0
+                           .data:00000406 20 3c 00 00 7f ff                movel #32767,%d0
+                           .data:0000040c 30 fc aa 55                      movew #-21931,%a0@+
+                           .data:00000410 51 c8 ff fa                      dbf %d0,0x0000040c
+                           .data:00000414 41 f9 00 30 00 00                lea 0x00300000,%a0
+                           .data:0000041a 20 3c 00 00 7f ff                movel #32767,%d0
+                           .data:00000420 0c 58 aa 55                      cmpiw #-21931,%a0@+
+                           .data:00000424 66 04                            bnes 0x0000042a
+                           .data:00000426 51 c8 ff f8                      dbf %d0,0x00000420
+                           .data:0000042a 48 c0                            extl %d0
+                           .data:0000042c 52 80                            addql #1,%d0
+                           .data:0000042e e3 80                            asll #1,%d0
+                           .data:00000430 44 80                            negl %d0
+                           .data:00000432 06 80 00 01 00 00                addil #65536,%d0
+                           .data:00000438 23 c0 00 30 d9 14                movel %d0,0x0030d914
+                           .data:0000043e 4f f9 00 30 3f fe                lea 0x00303ffe,%sp
+                           .data:00000444 4b f9 00 31 58 00                lea 0x00315800,%a5
+                           .data:0000044a 4e b9 00 00 04 66                jsr 0x00000466
+                           .data:00000450 42 a7                            clrl %sp@-
+                           .data:00000452 42 a7                            clrl %sp@-
+                           .data:00000454 42 a7                            clrl %sp@-
+                           .data:00000456 4e b9 00 01 80 00                jsr 0x00018000
+                           .data:0000045c 4f ef 00 0c                      lea %sp@(12),%sp
+                           .data:00000460 2f 00                            movel %d0,%sp@-
+                           .data:00000462 4e fa ff fe                      jmp %pc@(0x00000462)
+                           .data:00000466 20 3c 00 00 03 cc                movel #972,%d0
+                           .data:0000046c 55 80                            subql #2,%d0
+                           .data:0000046e 6f 00 00 60                      blew 0x000004d0
+                           .data:00000472 20 7c 00 00 05 00                moveal #1280,%a0
+                           .data:00000478 0c 10 00 53                      cmpib #83,%a0@
+                           .data:0000047c 66 52                            bnes 0x000004d0
+                           .data:0000047e 52 88                            addql #1,%a0
+                           .data:00000480 60 00 00 48                      braw 0x000004ca
+                           .data:00000484 10 10                            moveb %a0@,%d0
+                           .data:00000486 04 00 00 43                      subib #67,%d0
+                           .data:0000048a 66 00 00 44                      bnew 0x000004d0
+                           .data:0000048e 52 88                            addql #1,%a0
+                           .data:00000490 70 00                            moveq #0,%d0
+                           .data:00000492 10 10                            moveb %a0@,%d0
+                           .data:00000494 e1 88                            lsll #8,%d0
+                           .data:00000496 10 28 00 01                      moveb %a0@(1),%d0
+                           .data:0000049a e1 88                            lsll #8,%d0
+                           .data:0000049c 10 28 00 02                      moveb %a0@(2),%d0
+                           .data:000004a0 e1 88                            lsll #8,%d0
+                           .data:000004a2 10 28 00 03                      moveb %a0@(3),%d0
+                           .data:000004a6 53 80                            subql #1,%d0
+                           .data:000004a8 58 88                            addql #4,%a0
+                           .data:000004aa 72 00                            moveq #0,%d1
+                           .data:000004ac 12 10                            moveb %a0@,%d1
+                           .data:000004ae e1 89                            lsll #8,%d1
+                           .data:000004b0 12 28 00 01                      moveb %a0@(1),%d1
+                           .data:000004b4 e1 89                            lsll #8,%d1
+                           .data:000004b6 12 28 00 02                      moveb %a0@(2),%d1
+                           .data:000004ba e1 89                            lsll #8,%d1
+                           .data:000004bc 12 28 00 03                      moveb %a0@(3),%d1
+                           .data:000004c0 58 88                            addql #4,%a0
+                           .data:000004c2 22 41                            moveal %d1,%a1
+                           .data:000004c4 12 d8                            moveb %a0@+,%a1@+
+                           .data:000004c6 51 c8 ff fc                      dbf %d0,0x000004c4
+                           .data:000004ca 0c 10 00 45                      cmpib #69,%a0@
+                           .data:000004ce 66 b4                            bnes 0x00000484
+                           .data:000004d0 4e 75                            rts
