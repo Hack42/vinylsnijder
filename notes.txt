@@ -2,6 +2,9 @@ Wat notes van mij (denz)
 
 1. Big endian (duh)
 2. De eerste 0x400 bytes zijn de vector tabel. zie https://wiki.neogeodev.org/index.php?title=68k_vector_table
+3. Op 0x00000400 begint de code met het vullen van het RAM geheugen met 0xaa55, en daarna weer uitlezen.
+   Dit lijkt mij een memory check, en geeft mij het idee van 64K RAM op 0x00300000
+
 
 Begin van de rom image (alles samengevoegd)
 00000000  00 30 3f fe 00 00 04 00  00 01 84 e4 00 01 88 3c  |.0?............<|
@@ -28,8 +31,8 @@ Dit is dus een stuk code dat als eerste wordt uitgevoerd:
 
 gedisassembleerd:
 
-                           .data:00000400 41 f9 00 30 00 00                lea 0x00300000,%a0
-                           .data:00000406 20 3c 00 00 7f ff                movel #32767,%d0
+                           .data:00000400 41 f9 00 30 00 00                lea 0x00300000,%a0       ; memcheck 32k x 16 bits
+                           .data:00000406 20 3c 00 00 7f ff                movel #32767,%d0         ; vanaf 0x00300000
                            .data:0000040c 30 fc aa 55                      movew #-21931,%a0@+
                            .data:00000410 51 c8 ff fa                      dbf %d0,0x0000040c
                            .data:00000414 41 f9 00 30 00 00                lea 0x00300000,%a0
