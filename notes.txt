@@ -31,65 +31,66 @@ Dit is dus een stuk code dat als eerste wordt uitgevoerd:
 
 gedisassembleerd:
 
-                           .data:00000400 41 f9 00 30 00 00                lea 0x00300000,%a0       ; memcheck 32k x 16 bits
-                           .data:00000406 20 3c 00 00 7f ff                movel #32767,%d0         ; vanaf 0x00300000
-                           .data:0000040c 30 fc aa 55                      movew #-21931,%a0@+
-                           .data:00000410 51 c8 ff fa                      dbf %d0,0x0000040c
-                           .data:00000414 41 f9 00 30 00 00                lea 0x00300000,%a0
-                           .data:0000041a 20 3c 00 00 7f ff                movel #32767,%d0
-                           .data:00000420 0c 58 aa 55                      cmpiw #-21931,%a0@+
-                           .data:00000424 66 04                            bnes 0x0000042a
-                           .data:00000426 51 c8 ff f8                      dbf %d0,0x00000420
-                           .data:0000042a 48 c0                            extl %d0
-                           .data:0000042c 52 80                            addql #1,%d0
-                           .data:0000042e e3 80                            asll #1,%d0
-                           .data:00000430 44 80                            negl %d0
-                           .data:00000432 06 80 00 01 00 00                addil #65536,%d0
-                           .data:00000438 23 c0 00 30 d9 14                movel %d0,0x0030d914
-                           .data:0000043e 4f f9 00 30 3f fe                lea 0x00303ffe,%sp
-                           .data:00000444 4b f9 00 31 58 00                lea 0x00315800,%a5
-                           .data:0000044a 4e b9 00 00 04 66                jsr 0x00000466
-                           .data:00000450 42 a7                            clrl %sp@-
-                           .data:00000452 42 a7                            clrl %sp@-
-                           .data:00000454 42 a7                            clrl %sp@-
-                           .data:00000456 4e b9 00 01 80 00                jsr 0x00018000
-                           .data:0000045c 4f ef 00 0c                      lea %sp@(12),%sp
-                           .data:00000460 2f 00                            movel %d0,%sp@-
-                           .data:00000462 4e fa ff fe                      jmp %pc@(0x00000462)
-                           .data:00000466 20 3c 00 00 03 cc                movel #972,%d0
-                           .data:0000046c 55 80                            subql #2,%d0
-                           .data:0000046e 6f 00 00 60                      blew 0x000004d0
-                           .data:00000472 20 7c 00 00 05 00                moveal #1280,%a0
-                           .data:00000478 0c 10 00 53                      cmpib #83,%a0@
-                           .data:0000047c 66 52                            bnes 0x000004d0
-                           .data:0000047e 52 88                            addql #1,%a0
-                           .data:00000480 60 00 00 48                      braw 0x000004ca
-                           .data:00000484 10 10                            moveb %a0@,%d0
-                           .data:00000486 04 00 00 43                      subib #67,%d0
-                           .data:0000048a 66 00 00 44                      bnew 0x000004d0
-                           .data:0000048e 52 88                            addql #1,%a0
-                           .data:00000490 70 00                            moveq #0,%d0
-                           .data:00000492 10 10                            moveb %a0@,%d0
-                           .data:00000494 e1 88                            lsll #8,%d0
-                           .data:00000496 10 28 00 01                      moveb %a0@(1),%d0
-                           .data:0000049a e1 88                            lsll #8,%d0
-                           .data:0000049c 10 28 00 02                      moveb %a0@(2),%d0
-                           .data:000004a0 e1 88                            lsll #8,%d0
-                           .data:000004a2 10 28 00 03                      moveb %a0@(3),%d0
-                           .data:000004a6 53 80                            subql #1,%d0
-                           .data:000004a8 58 88                            addql #4,%a0
-                           .data:000004aa 72 00                            moveq #0,%d1
-                           .data:000004ac 12 10                            moveb %a0@,%d1
-                           .data:000004ae e1 89                            lsll #8,%d1
-                           .data:000004b0 12 28 00 01                      moveb %a0@(1),%d1
-                           .data:000004b4 e1 89                            lsll #8,%d1
-                           .data:000004b6 12 28 00 02                      moveb %a0@(2),%d1
-                           .data:000004ba e1 89                            lsll #8,%d1
-                           .data:000004bc 12 28 00 03                      moveb %a0@(3),%d1
-                           .data:000004c0 58 88                            addql #4,%a0
-                           .data:000004c2 22 41                            moveal %d1,%a1
-                           .data:000004c4 12 d8                            moveb %a0@+,%a1@+
-                           .data:000004c6 51 c8 ff fc                      dbf %d0,0x000004c4
-                           .data:000004ca 0c 10 00 45                      cmpib #69,%a0@
-                           .data:000004ce 66 b4                            bnes 0x00000484
-                           .data:000004d0 4e 75                            rts
+     400:       41f9 0030 0000  lea 0x300000,%a0        ;/ memory check 32k x 16bits
+     406:       203c 0000 7fff  movel #0x7fff,%d0       ;
+     40c:       30fc aa55       movew #0xaa55,%a0@+     ;  vul elk geheugen woord met 0xaa55
+     410:       51c8 fffa       dbf %d0,0x40c           ;
+     414:       41f9 0030 0000  lea 0x300000,%a0        ;
+     41a:       203c 0000 7fff  movel #0x7fff,%d0       ;
+     420:       0c58 aa55       cmpiw #0xaa55,%a0@+     ;  compare elk geheugen woord met 0xaa55
+     424:       6604            bnes 0x42a              ;  ohnoes! exit loop
+     426:       51c8 fff8       dbf %d0,0x420           ;\
+     42a:       48c0            extl %d0                ;/ reken... reken...
+     42c:       5280            addql #1,%d0            ;  dit lijkt op rekenwerk om de
+     42e:       e380            asll #1,%d0             ;  downcounter d0 om te rekenen naar het
+     430:       4480            negl %d0                ;  gefaalde geheugenadres. Of zo.
+     432:       0680 0001 0000  addil #65536,%d0        ;\
+     438:       23c0 0030 d914  movel %d0,0x30d914      ;/ memtest resultaat in 0x30d914
+     43e:       4ff9 0030 3ffe  lea 0x303ffe,%sp        ;  re-init stack pointer
+     444:       4bf9 0031 5800  lea 0x315800,%a5        ;  functiecode?
+     44a:       4eb9 0000 0466  jsr 0x466               ;\ en jump!
+     450:       42a7            clrl %sp@-              ;/ cleanup stack frame?
+     452:       42a7            clrl %sp@-              ;
+     454:       42a7            clrl %sp@-              ;\
+     456:       4eb9 0001 8000  jsr 0x18000             ;  ik denk dat dit de main routine is
+     45c:       4fef 000c       lea %sp@(12),%sp        ;
+     460:       2f00            movel %d0,%sp@-         ;
+     462:       4efa fffe       jmp %pc@(0x462)         ; geen idee. jump to self?
+     466:       203c 0000 03cc  movel #972,%d0          ;/ Hier gebeurt iets na afloop van de memtest
+     46c:       5580            subql #2,%d0            ;
+     46e:       6f00 0060       blew 0x4d0              ;
+     472:       207c 0000 0500  moveal #1280,%a0        ;
+     478:       0c10 0053       cmpib #83,%a0@          ;
+     47c:       6652            bnes 0x4d0              ;
+     47e:       5288            addql #1,%a0            ;
+     480:       6000 0048       braw 0x4ca              ;
+     484:       1010            moveb %a0@,%d0          ;
+     486:       0400 0043       subib #67,%d0           ;
+     48a:       6600 0044       bnew 0x4d0              ;
+     48e:       5288            addql #1,%a0            ;
+     490:       7000            moveq #0,%d0            ;
+     492:       1010            moveb %a0@,%d0          ;
+     494:       e188            lsll #8,%d0             ;
+     496:       1028 0001       moveb %a0@(1),%d0       ;
+     49a:       e188            lsll #8,%d0             ;
+     49c:       1028 0002       moveb %a0@(2),%d0       ;
+     4a0:       e188            lsll #8,%d0             ;
+     4a2:       1028 0003       moveb %a0@(3),%d0       ;
+     4a6:       5380            subql #1,%d0            ;
+     4a8:       5888            addql #4,%a0            ;
+     4aa:       7200            moveq #0,%d1            ;
+     4ac:       1210            moveb %a0@,%d1          ;
+     4ae:       e189            lsll #8,%d1             ;
+     4b0:       1228 0001       moveb %a0@(1),%d1       ;
+     4b4:       e189            lsll #8,%d1             ;
+     4b6:       1228 0002       moveb %a0@(2),%d1       ;
+     4ba:       e189            lsll #8,%d1             ;
+     4bc:       1228 0003       moveb %a0@(3),%d1       ;
+     4c0:       5888            addql #4,%a0            ;
+     4c2:       2241            moveal %d1,%a1          ;
+     4c4:       12d8            moveb %a0@+,%a1@+       ;
+     4c6:       51c8 fffc       dbf %d0,0x4c4           ;
+     4ca:       0c10 0045       cmpib #69,%a0@          ;
+     4ce:       66b4            bnes 0x484              ;
+     4d0:       4e75            rts                     ;\
+
