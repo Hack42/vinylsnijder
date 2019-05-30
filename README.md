@@ -6,8 +6,11 @@ Unfortunately the model detection appears to be broken, causing the plotter to
 report duty as an AG75 and bumping the head against the sides of the machine
 during SELF TEST.
 
-To analyze this problem we dumped the memory of the device, which appears
-m86k-based.
+To analyze this problem we dumped the memory of the device, which has a
+MC68HC000FN16 processor. This repo contains the dumps and a Makefile to
+stitch them together and create a raw disassembly - though rather than
+analyzing by hand it is much easier to use a tool like
+[Ghidra](https://ghidra-sre.org).
 
 On machine startup it shows `AG75 SIGNLINE` on the display, where we would
 expect `AG50 SIGNLINE` (or perhaps `AG50/75 SIGNLINE`). Indeed we find this

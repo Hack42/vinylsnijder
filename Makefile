@@ -13,5 +13,5 @@ ag50-75-v1.8a.bin: ag50-75-v1.8a-l-part1.bin ag50-75-v1.8a-h-part1.bin ag50-75-v
 	./interleave.py ag50-75-v1.8a-h-part2.bin ag50-75-v1.8a-l-part2.bin >> $@
 
 %.dump: %.bin
-	/usr/m68k-linux-gnu/bin/objdump -d $< > $@
+	/usr/m68k-linux-gnu/bin/objdump -bbinary -m m68k -D $< > $@
 
