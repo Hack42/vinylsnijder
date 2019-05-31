@@ -34,3 +34,12 @@ string in the dumped firmware:
 ```
 
 Next step is to find a way to disassemble
+
+## Memory layout
+
+| Item  | From          | To            | Notes
+| ----- | ------------- | ------------- | ---------
+| ROM   | `0x0000.0000` | `0x0002.ffff` | Gesplitst in Low en High byte EPROMS
+| CMFP  | `0x0020.0000` | `0x0020.002f` | CMOS Multi-Function Peripheral ([Datasheet](docs/ts68hc901.pdf))
+| RAM   | `0x0030.0000` | `0x0030.7fff` | Volgens de memory test
+
