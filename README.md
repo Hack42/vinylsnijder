@@ -47,8 +47,11 @@ Notable addresses:
 0x280001 I/O?
 0x303ffe initial stack pointer
 0x30d914 memcheck result
-0x30d9d6 language ('0'=english, '1'=german, '2'=spanish?, '3'=french)
+0x30d978 film width?
 0x30d982 model indicator ('5'=AG50, '7'=AG75, '\0'=AG50/75)
+0x30d9d6 language ('0'=english, '1'=german, '2'=spanish?, '3'=french)
+0x30d9ee repeat?
+0x30d9a6 baud rate?
 0x30e5ac selftest result
 0x30e6e4 initialized with blob of length ? from 0x50a
 0x30e898 initialized with blob of length ? from 0x6c7
