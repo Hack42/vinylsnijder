@@ -33,13 +33,44 @@ string in the dumped firmware:
 00007e40  20 20 20 20 20 41 55 54  4f 20 54 45 53 54 20 20  |     AUTO TEST  |
 ```
 
-Next step is to find a way to disassemble
-
 ## Memory layout
 
-| Item  | From          | To            | Notes
-| ----- | ------------- | ------------- | ---------
-| ROM   | `0x0000.0000` | `0x0002.ffff` | Gesplitst in Low en High byte EPROMS
-| CMFP  | `0x0020.0000` | `0x0020.002f` | CMOS Multi-Function Peripheral ([Datasheet](docs/ts68hc901.pdf))
-| RAM   | `0x0030.0000` | `0x0030.7fff` | Volgens de memory test
+| Item   | From          | To            | Notes
+| ------ | ------------- | ------------- | ---------
+| ROM    | `0x0000.0000` | `0x0002.ffff` | Gesplitst in Low en High byte EPROMS
+| CMFP   | `0x0020.0000` | `0x0020.002f` | CMOS Multi-Function Peripheral ([Datasheet](docs/ts68hc901.pdf))
+| RAM    | `0x0030.0000` | `0x0030.7fff` | Volgens de memory test
+| EEPROM | ?             | ?+4k          | CMOS EEPROM ([Datasheet](docs/28c04a.pdf))
 
+Notable addresses:
+
+0x280001 I/O?
+0x303ffe initial stack pointer
+0x30d914 memcheck result
+0x30d9d6 language ('0'=english, '1'=german, '2'=spanish?, '3'=french)
+0x30d982 model indicator ('5'=AG50, '7'=AG75, '\0'=AG50/75)
+0x30e5ac selftest result
+0x30e6e4 initialized with blob of length ? from 0x50a
+0x30e898 initialized with blob of length ? from 0x6c7
+
+We suspect some user settings, such as the language and model to show during
+boot are stored in the 28c04a. Can it be that that is memory-mapped around
+0x30d900?
+
+The language is read at 0x18008 and also found at 0xc910. It looks like area
+around 0xc910 is some kind of data structure describing the menu's, as it contains
+many pointers into 0x300000 and to settings strings.
+
+The model indicator at 0x30d982 is used to determine what model to show during
+boot, but AFAICS it is not used to determine how far to move the carriage
+during the self-test.
+
+Unlike the language, the model indicator does not appear anywhere around 0xc910
+(which makes sense since it doesn't seem to be in the menu's).
+It is read at 0x18020, and also appears at 0x89b. Not sure yet how to interpret
+that.
+
+Main questions:
+* how is the model indicator written?
+* if not the model indicator, what determines how far the carriage is to move
+  during initialization.
